@@ -1,0 +1,191 @@
+:root {
+  --bg-0: #08111f;
+  --bg-1: #0e1a2d;
+  --bg-2: #13243d;
+  --panel: rgba(13, 24, 44, 0.82);
+  --panel-border: rgba(255, 255, 255, 0.09);
+  --text: #eef4ff;
+  --muted: rgba(238, 244, 255, 0.72);
+  --accent: #69d7ff;
+  --accent-2: #86f0b1;
+  --danger: #ff8a8a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(105, 215, 255, 0.18), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(134, 240, 177, 0.14), transparent 24%),
+    linear-gradient(160deg, var(--bg-0), var(--bg-1) 48%, var(--bg-2));
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+.shell {
+  position: relative;
+  overflow: hidden;
+}
+
+.orb {
+  position: fixed;
+  pointer-events: none;
+  filter: blur(60px);
+  opacity: 0.55;
+}
+
+.orb-one {
+  width: 280px;
+  height: 280px;
+  top: -80px;
+  right: -90px;
+  background: rgba(105, 215, 255, 0.18);
+}
+
+.orb-two {
+  width: 220px;
+  height: 220px;
+  bottom: -70px;
+  left: -70px;
+  background: rgba(134, 240, 177, 0.12);
+}
+
+.hero {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.glass-card {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+}
+
+.hero-card {
+  min-height: 100%;
+}
+
+.metric-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.metric-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.stacked-metrics {
+  display: grid;
+  gap: 1rem;
+}
+
+.nav-pills .nav-link {
+  border-radius: 999px;
+  color: var(--muted);
+  border: 1px solid transparent;
+}
+
+.nav-pills .nav-link.active {
+  background: linear-gradient(135deg, rgba(105, 215, 255, 0.95), rgba(134, 240, 177, 0.88));
+  color: #06111f;
+  font-weight: 700;
+}
+
+.form-control,
+.form-control:focus {
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.form-control::placeholder {
+  color: rgba(238, 244, 255, 0.38);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #69d7ff, #86f0b1);
+  border: none;
+  color: #07111d;
+  font-weight: 700;
+}
+
+.btn-outline-light {
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text);
+}
+
+.btn-outline-light:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.divider {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.status-message {
+  min-height: 2.5rem;
+  color: var(--muted);
+}
+
+.progress {
+  height: 0.9rem;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #69d7ff, #86f0b1);
+}
+
+.result-shell {
+  min-height: 480px;
+}
+
+.result-preview {
+  min-height: 100%;
+  margin: 0;
+  padding: 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: rgba(3, 9, 18, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  color: #d7e8ff;
+  font-size: 0.92rem;
+}
+
+.badge {
+  font-size: 0.72rem;
+}
+
+@media (max-width: 991px) {
+  .result-shell {
+    min-height: 320px;
+  }
+}

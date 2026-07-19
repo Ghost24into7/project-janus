@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "project-janus"
+version = "0.1.0"
+description = "OCR intelligence pipeline and control plane"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi",
+  "uvicorn",
+  "python-multipart",
+  "pymupdf",
+  "numpy",
+  "opencv-python",
+  "Pillow",
+  "ollama",
+  "python-dotenv",
+  "PyYAML",
+  "pydantic",
+  "typing_extensions",
+  "python-docx",
+  "openpyxl",
+  "psutil",
+  "requests",
+  "sentence-transformers",
+  "qdrant-client",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Janus OCR Control Plane</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <div class="orb orb-one"></div>
+    <div class="orb orb-two"></div>
+
+    <main class="container-fluid px-3 px-md-4 py-4 py-md-5">
+      <section class="hero mb-4 mb-md-5">
+        <div class="row align-items-end g-4">
+          <div class="col-lg-8">
+            <span class="eyebrow">OCR Intelligence Engine</span>
+            <h1 class="display-4 fw-bold mb-3">Janus control plane for low-end, multi-format document processing.</h1>
+            <p class="lead mb-0 text-secondary-emphasis">
+              Upload a file or paste legacy text. The backend normalizes the source, routes it through the shared pipeline, stores a governed output per job, and lets you track progress in real time.
+            </p>
+          </div>
+          <div class="col-lg-4">
+            <div class="hero-card glass-card p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-uppercase small fw-semibold text-primary-emphasis">System status</span>
+                <span id="healthBadge" class="badge rounded-pill text-bg-secondary">Checking</span>
+              </div>
+              <div class="stacked-metrics">
+                <div>
+                  <div class="metric-label">Backend</div>
+                  <div id="backendName" class="metric-value">OCR Intelligence Engine</div>
+                </div>
+                <div>
+                  <div class="metric-label">Mode</div>
+                  <div class="metric-value">Job-aware / micro-task</div>
+                </div>
+                <div>
+                  <div class="metric-label">Storage</div>
+                  <div class="metric-value">Per-job outputs + checkpoints</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="row g-4">
+        <div class="col-xl-5">
+          <div class="glass-card p-4 h-100">
+            <ul class="nav nav-pills mb-4" id="ingestTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#filePane" type="button" role="tab">File upload</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="pill" data-bs-target="#textPane" type="button" role="tab">Legacy text</button>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="filePane" role="tabpanel">
+                <form id="fileForm" class="vstack gap-3">
+                  <div>
+                    <label class="form-label text-uppercase small fw-semibold">Supported file</label>
+                    <input id="fileInput" class="form-control form-control-lg" type="file" accept=".pdf,.docx,.xlsx,.csv,.tsv,.txt,.md,.json,.sql,.db,.sqlite,.sqlite3" />
+                  </div>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary btn-lg" type="submit">Process file</button>
+                    <button class="btn btn-outline-light btn-lg" type="button" id="clearFileBtn">Clear</button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="tab-pane fade" id="textPane" role="tabpanel">
+                <form id="textForm" class="vstack gap-3">
+                  <div>
+                    <label class="form-label text-uppercase small fw-semibold">Source label</label>
+                    <input id="textLabel" class="form-control" type="text" value="legacy_data" />
+                  </div>
+                  <div>
+                    <label class="form-label text-uppercase small fw-semibold">Legacy content / db string / raw text</label>
+                    <textarea id="textInput" class="form-control" rows="10" placeholder="Paste raw data here."></textarea>
+                  </div>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-primary btn-lg" type="submit">Process text</button>
+                    <button class="btn btn-outline-light btn-lg" type="button" id="clearTextBtn">Clear</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <hr class="my-4 divider" />
+
+            <div class="mb-3">
+              <div class="metric-label">Current job</div>
+              <div id="jobIdValue" class="metric-value">No job running</div>
+            </div>
+            <div class="progress-wrap mb-3">
+              <div class="d-flex justify-content-between small text-secondary-emphasis mb-2">
+                <span>Status</span>
+                <span id="jobStatusValue">Idle</span>
+              </div>
+              <div class="progress" role="progressbar" aria-label="Job progress">
+                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+              </div>
+            </div>
+            <div id="statusMessage" class="status-message">Upload a document to start.</div>
+          </div>
+        </div>
+
+        <div class="col-xl-7">
+          <div class="glass-card p-4 h-100 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
+              <div>
+                <span class="eyebrow">Output</span>
+                <h2 class="h4 mb-1">Structured markdown result</h2>
+                <p class="text-secondary-emphasis mb-0">The output is written per job on the backend and streamed here once the job completes.</p>
+              </div>
+              <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-outline-light btn-sm" id="refreshResultBtn" type="button">Refresh</button>
+                <button class="btn btn-outline-light btn-sm" id="downloadResultBtn" type="button" disabled>Download</button>
+              </div>
+            </div>
+            <div class="result-shell flex-grow-1">
+              <pre id="resultPreview" class="result-preview">No result yet.</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

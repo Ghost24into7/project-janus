@@ -3,6 +3,9 @@ pymupdf
 numpy
 opencv-python
 Pillow
+fastapi
+uvicorn
+python-multipart
 
 # AI
 ollama
@@ -14,6 +17,10 @@ rich
 # Config
 python-dotenv
 PyYAML
+
+# Office ingestion
+python-docx
+openpyxl
 
 # Validation
 pydantic

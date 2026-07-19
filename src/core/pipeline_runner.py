@@ -21,6 +21,12 @@ Python:
 from __future__ import annotations
 
 
+import json
+
+import time
+
+from dataclasses import asdict
+
 from pathlib import Path
 
 
@@ -34,6 +40,10 @@ from core.checkpoint_manager import CheckpointManager
 from core.memory_manager import MemoryManager
 
 from core.model_manager import ModelManager
+
+from core.document_ingestion import DocumentIngestionService
+
+from config.settings import PATHS
 
 
 from models.document import (
@@ -91,11 +101,14 @@ class PipelineRunner:
 
         self.model_manager = ModelManager()
 
+        self.ingestion_service = DocumentIngestionService()
+
 
 
     def run(
         self,
         pdf_path: Path,
+        job_id: str | None = None,
     ):
         """
         Execute document processing.
@@ -105,16 +118,22 @@ class PipelineRunner:
                 Input PDF path.
         """
 
-        job = (
-            self.job_manager.create_job(
+        if job_id is None:
+            job = self.job_manager.create_job(
                 pdf_path.name
             )
-        )
+            job_id = job.job_id
+        else:
+            job = self.job_manager.get_job(
+                job_id
+            )
 
 
         checkpoint = CheckpointManager(
-            job.job_id
+            job_id
         )
+
+        start_time = time.perf_counter()
 
 
         try:
@@ -123,9 +142,11 @@ class PipelineRunner:
 
                 pdf_path,
 
-                job.job_id,
+                job_id,
 
                 checkpoint,
+
+                start_time,
 
             )
 
@@ -156,7 +177,15 @@ class PipelineRunner:
         pdf_path: Path,
         job_id: str,
         checkpoint: CheckpointManager,
+        start_time: float,
     ):
+
+        if pdf_path.suffix.lower() != ".pdf":
+            return self._execute_structured(
+                pdf_path,
+                job_id,
+                start_time,
+            )
 
         # -----------------------------
         # Model preparation
@@ -392,8 +421,18 @@ class PipelineRunner:
 
 
 
+        document.processing_time = (
+            time.perf_counter()
+            - start_time
+        )
+
         self.job_manager.complete_job(
             job_id
+        )
+
+        self._save_outputs(
+            document,
+            job_id,
         )
 
 
@@ -401,3 +440,109 @@ class PipelineRunner:
 
 
         return document
+
+
+    def _execute_structured(
+        self,
+        source_path: Path,
+        job_id: str,
+        start_time: float,
+    ):
+
+        self.job_manager.update_status(
+            job_id,
+            JobStatus.ANALYZING,
+            15,
+        )
+
+        ingested = self.ingestion_service.ingest_file(
+            source_path
+        )
+
+        self.job_manager.update_status(
+            job_id,
+            JobStatus.ASSEMBLING,
+            70,
+        )
+
+        document = self.assembler.assemble(
+            ingested.metadata,
+            ingested.pages,
+        )
+
+        self.job_manager.update_status(
+            job_id,
+            JobStatus.VALIDATING,
+            90,
+        )
+
+        validation = self.validator.validate(
+            document
+        )
+
+        if not validation.passed:
+
+            logger.warning(
+                validation.issues
+            )
+
+        document.processing_time = (
+            time.perf_counter()
+            - start_time
+        )
+
+        self._save_outputs(
+            document,
+            job_id,
+        )
+
+        self.job_manager.complete_job(
+            job_id
+        )
+
+        return document
+
+
+    def _save_outputs(
+        self,
+        document,
+        job_id: str,
+    ) -> None:
+
+        output_directory = (
+            PATHS.output
+            / job_id
+        )
+
+        output_directory.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        document_path = (
+            output_directory
+            / "document.md"
+        )
+
+        metadata_path = (
+            output_directory
+            / "metadata.json"
+        )
+
+        document_path.write_text(
+            document.markdown,
+            encoding="utf-8",
+        )
+
+        metadata_path.write_text(
+            json.dumps(
+                {
+                    "metadata": asdict(document.metadata),
+                    "processing_time": document.processing_time,
+                    "warnings": document.warnings,
+                },
+                indent=2,
+                default=str,
+            ),
+            encoding="utf-8",
+        )

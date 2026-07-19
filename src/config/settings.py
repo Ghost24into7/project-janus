@@ -76,7 +76,7 @@ class OutputConfig:
     save_page_images: bool = False
 
 
-@dataclass(slots=True)
+@dataclass
 class PathConfig:
     """
     Project paths.
@@ -88,6 +88,10 @@ class PathConfig:
 
     def __post_init__(self) -> None:
 
+        self.data = self.root / "data"
+
+        self.input = self.data / "input"
+
         self.cache = self.root / "cache"
 
         self.logs = self.root / "logs"
@@ -95,6 +99,8 @@ class PathConfig:
         self.output = self.root / "output"
 
         self.temp = self.root / "temp"
+
+        self.jobs = self.data / "jobs"
 
         self.prompts = self.root / "prompts"
 
@@ -105,10 +111,13 @@ class PathConfig:
         self.docs = self.root / "docs"
 
         for directory in (
+            self.data,
+            self.input,
             self.cache,
             self.logs,
             self.output,
             self.temp,
+            self.jobs,
             self.prompts,
             self.checkpoints,
             self.tests,

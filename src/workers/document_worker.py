@@ -99,7 +99,8 @@ class DocumentWorker:
 
             result = (
                 self.pipeline.run(
-                    pdf_path
+                    pdf_path,
+                    job_id=job_id,
                 )
             )
 

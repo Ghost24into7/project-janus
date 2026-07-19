@@ -55,6 +55,20 @@ class DocumentSafetyManager:
         self,
         max_file_size_mb: int = 100,
         max_pages: int = 500,
+        allowed_extensions: tuple[str, ...] = (
+            ".pdf",
+            ".docx",
+            ".xlsx",
+            ".csv",
+            ".tsv",
+            ".txt",
+            ".md",
+            ".json",
+            ".sql",
+            ".db",
+            ".sqlite",
+            ".sqlite3",
+        ),
     ):
 
         self.max_file_size_mb = (
@@ -64,6 +78,11 @@ class DocumentSafetyManager:
         self.max_pages = (
             max_pages
         )
+
+        self.allowed_extensions = {
+            extension.lower()
+            for extension in allowed_extensions
+        }
 
 
         logger.info(
@@ -121,10 +140,10 @@ class DocumentSafetyManager:
         file_path: Path,
     ) -> SafetyResult:
         """
-        Allow only PDF.
+        Allow supported document formats.
         """
 
-        if file_path.suffix.lower() != ".pdf":
+        if file_path.suffix.lower() not in self.allowed_extensions:
 
             return SafetyResult(
 
