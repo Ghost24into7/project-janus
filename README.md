@@ -5,9 +5,9 @@
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-UI-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
 ![License](https://img.shields.io/badge/License-See%20Repo-lightgrey?style=for-the-badge)
 
-A local-first OCR and document intelligence platform built for low-end hardware, structured ingestion, governed persistence, and resumable micro-task execution.
+A local-first OCR and document intelligence platform built for low-end hardware, structured ingestion, and governed persistence.
 
-The system is designed to take many input types, normalize them into a common internal contract, process them in small safe steps, and preserve provenance so future agents and operators can continue without losing context.
+The system is designed to take many input types, normalize them into a common internal contract, process them safely, and preserve provenance across every job.
 
 ## What This Platform Does
 
@@ -213,10 +213,9 @@ The next architecture steps should be:
 ## Why This Structure Works
 
 This repo is set up so a low-end machine can still process large, mixed document sets safely:
-- each task is small,
 - each result is stored,
 - each job is isolated,
-- and each future agent can continue from the memory note or the architecture docs without rebuilding context from scratch.
+- and the system can preserve provenance and output state without collapsing into a single monolithic run.
 
 ## Related Docs
 
