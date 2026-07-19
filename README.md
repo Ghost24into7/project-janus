@@ -1,9 +1,16 @@
 # Project Janus
 
-![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-Service-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-Control%20Plane-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
-![Ollama](https://img.shields.io/badge/Ollama-Local%20VLM-000000?style=for-the-badge&logo=ollama&logoColor=white)
+<p align="left">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-Service-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+  <img alt="Bootstrap" src="https://img.shields.io/badge/Bootstrap-Control%20Plane-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" />
+  <img alt="Ollama" src="https://img.shields.io/badge/Ollama-Local%20VLM-000000?style=for-the-badge" />
+</p>
+
+<p align="left">
+  <img alt="Bootstrap logo" src="https://cdn.simpleicons.org/bootstrap/7952B3" height="36" />
+  <img alt="Ollama logo" src="https://cdn.simpleicons.org/ollama/000000" height="36" />
+</p>
 
 Project Janus is a local-first document intelligence system for OCR, structured ingestion, governed persistence, and retrieval-ready document normalization.
 
@@ -35,6 +42,26 @@ flowchart LR
   V --> O[Per-Job Output]
   O --> X[API / UI / Worker]
 ```
+
+## System Evolution
+
+The platform has evolved in deliberate layers rather than as a one-shot rebuild.
+
+```mermaid
+flowchart LR
+  A[Phase 1\nPDF-only OCR] --> B[Phase 2\nJob-scoped runner]
+  B --> C[Phase 3\nCanonical ingestion]
+  C --> D[Phase 4\nBootstrap control plane]
+  D --> E[Phase 5\nGoverned retrieval-ready platform]
+```
+
+| Phase | Architectural shift | Outcome |
+|---|---|---|
+| Phase 1 | PDF analysis, rendering, extraction | Proved the core OCR path |
+| Phase 2 | Job records and checkpoints | Enabled isolation and recovery |
+| Phase 3 | Structured ingestion for non-PDF sources | Unified heterogeneous inputs |
+| Phase 4 | Bootstrap UI and API control plane | Added operator visibility |
+| Phase 5 | Governance and retrieval surface | Prepared the system for knowledgebase growth |
 
 ## System Boundaries
 
@@ -111,6 +138,16 @@ That path is used for:
 - raw SQL or legacy text,
 - and other non-PDF content that can be normalized safely.
 
+## Obstacles And Design Responses
+
+| Obstacle | Why It Matters | Design Response |
+|---|---|---|
+| Low-end hardware | Large prompts and broad concurrency fail quickly on constrained RAM | Keep work in micro-sized job units, persist checkpoints, and avoid unnecessary parallelism |
+| Mixed input formats | PDF, DOCX, XLSX, CSV, SQLite, and raw text do not share a common representation | Normalize all sources into a canonical internal contract before assembly |
+| Context loss | Vision models and long documents can lose prior state | Store outputs per job, keep provenance, and rely on external memory instead of a giant prompt |
+| Unsafe uploads | Sensitive or malformed files can corrupt the pipeline | Apply safety screening, filename sanitization, and strict Git hygiene |
+| Output drift | Without a stable contract, results become hard to retrieve or govern | Write markdown and metadata per job using a consistent directory layout |
+
 ## Governance And Storage
 
 The repository treats storage as part of the architecture, not an afterthought.
@@ -133,6 +170,17 @@ Already present in the system:
 - **Sentence Transformers** for embeddings and reranking.
 - **Pytest** for regression coverage.
 - **Editable packaging** through [pyproject.toml](pyproject.toml).
+
+## Visual Design Logic
+
+This repository is intentionally presented like an operator-grade control surface rather than a starter project.
+
+The current documentation style emphasizes:
+- strong system hierarchy,
+- visible technology identity,
+- flow diagrams instead of prose-only descriptions,
+- tables for architectural tradeoffs,
+- and a clean separation between runtime behavior and implementation detail.
 
 Natural extension points:
 
@@ -204,6 +252,13 @@ The next system-level expansions should be:
 4. background queueing,
 5. sensitivity and retention policy enforcement,
 6. provenance browsing and lineage visualization.
+
+## Obstacles Already Solved
+
+- The system no longer depends on a single PDF-only path.
+- The UI and API now share the same job-scoped output contract.
+- The repository is installable as a package instead of relying on ad hoc module discovery.
+- The runtime now has a single orchestration contract for OCR and structured sources.
 
 ## Related References
 
