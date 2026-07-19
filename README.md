@@ -1,143 +1,149 @@
 # Project Janus
 
 ![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-API-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-UI-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
-![License](https://img.shields.io/badge/License-See%20Repo-lightgrey?style=for-the-badge)
+![FastAPI](https://img.shields.io/badge/FastAPI-Service-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-Control%20Plane-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-Local%20VLM-000000?style=for-the-badge&logo=ollama&logoColor=white)
 
-A local-first OCR and document intelligence platform built for low-end hardware, structured ingestion, and governed persistence.
+Project Janus is a local-first document intelligence system for OCR, structured ingestion, governed persistence, and retrieval-ready document normalization.
 
-The system is designed to take many input types, normalize them into a common internal contract, process them safely, and preserve provenance across every job.
+It is built to run on constrained hardware while still supporting large and mixed document sets through deterministic preprocessing, job isolation, and typed data contracts.
 
-## What This Platform Does
+## Executive Summary
 
-Project Janus combines OCR, vision extraction, job management, checkpointing, and a Bootstrap control plane into one coordinated system.
+The platform accepts document and data inputs, applies safety checks, routes each job through the correct processing path, and stores output per job with provenance intact.
 
-It is optimized around:
-- low-memory execution,
-- resumable document jobs,
-- structured outputs,
-- safe uploads,
-- and future knowledgebase expansion.
+The current system includes:
+- a PDF OCR pipeline,
+- a canonical ingestion layer for structured and legacy sources,
+- a FastAPI service,
+- a Bootstrap-based web control plane,
+- job and checkpoint persistence,
+- and a retrieval stack for future knowledgebase use.
 
-## System At A Glance
+## Operating Model
 
 ```mermaid
 flowchart LR
-  A[Upload or CLI Input] --> B[Safety & Normalization]
-  B --> C[Job Manager]
-  C --> D[Pipeline Runner]
-  D --> E1[PDF Path]
-  D --> E2[Structured Ingestion]
-  E1 --> F1[Analyze -> Render -> Preprocess -> Layout -> Extract]
-  E2 --> F2[Canonical Document Ingestion]
-  F1 --> G[Assemble -> Validate -> Persist]
-  F2 --> G
-  G --> H[Per-Job Output]
-  H --> I[Bootstrap UI / API / Future Knowledgebase]
+  U[Input Sources] --> S[Safety Screening]
+  S --> J[Job Record]
+  J --> R[Pipeline Runner]
+  R --> P1[PDF OCR Path]
+  R --> P2[Structured Ingestion Path]
+  P1 --> V[Validate]
+  P2 --> V
+  V --> O[Per-Job Output]
+  O --> X[API / UI / Worker]
 ```
 
-## Core Design Principles
+## System Boundaries
 
-- Micro-tasks over monoliths.
-- External memory over giant prompts.
-- Provenance over raw text dumps.
-- Governance over uncontrolled uploads.
-- Per-job isolation over shared global output.
-- Deterministic preprocessing before model calls.
-- One canonical internal structure for all supported inputs.
+The repository is organized around clear runtime boundaries:
 
-## Supported Inputs
+- **Entry points**: CLI and API bootstrap the same orchestration layer.
+- **Core orchestration**: a single runner coordinates analysis, rendering, preprocessing, layout detection, extraction, assembly, validation, and persistence.
+- **Ingestion**: non-PDF sources are normalized into the same internal contract.
+- **Governance**: upload screening, secret hygiene, and per-job isolation protect the system.
+- **Output**: each job owns its output directory and metadata bundle.
+- **Retrieval**: the RAG subsystem exists as a separate capability for grounded access to stored content.
 
-The current ingestion layer supports these source families:
+## Request Lifecycle
+
+1. A user submits a file or raw text through the UI, API, or CLI.
+2. The safety layer screens the payload.
+3. A job record is created.
+4. The runner selects the PDF OCR path or the structured ingestion path.
+5. The system produces markdown output and validation metadata.
+6. Results are saved under a per-job directory.
+7. The UI and API read the same job-scoped output.
+
+## Supported Sources
+
+The current system accepts these input families:
+
 - PDF and scanned PDF
 - DOCX
 - XLSX
 - CSV and TSV
 - JSON
-- SQL text or raw database strings
+- SQL text
 - SQLite-like database files
 - plain text and markdown
-- legacy or custom text payloads via the API
+- legacy or custom payloads through the API
 
-## Architecture
+## Runtime Topology
 
-### Runtime Flow
-
-1. The user uploads a file through the UI, API, or CLI.
-2. The safety layer rejects unsupported or risky inputs.
-3. A job record is created and tracked on disk.
-4. The runner chooses the PDF OCR path or the structured ingestion path.
-5. Output is assembled into markdown.
-6. Validation checks quality and completeness.
-7. Results are stored per job and exposed back through the UI and API.
-
-### Key Modules
-
-| Area | Responsibility | Main Files |
+| Layer | Responsibility | Main Files |
 |---|---|---|
-| Entry points | CLI and web service bootstrap | [src/main.py](src/main.py), [src/api/server.py](src/api/server.py) |
-| Pipeline | OCR flow orchestration | [src/core/pipeline_runner.py](src/core/pipeline_runner.py) |
-| Ingestion | Normalization for non-PDF inputs | [src/core/document_ingestion.py](src/core/document_ingestion.py) |
-| Safety | Upload screening and text sanitization | [src/security/safety.py](src/security/safety.py) |
-| Jobs | Job lifecycle and persistence | [src/core/job_manager.py](src/core/job_manager.py) |
-| Checkpoints | Page-level recovery | [src/core/checkpoint_manager.py](src/core/checkpoint_manager.py) |
-| Models | Shared dataclass contracts | [src/models/document.py](src/models/document.py) |
-| UI | Bootstrap-based control plane | [src/web/index.html](src/web/index.html), [src/web/app.js](src/web/app.js), [src/web/styles.css](src/web/styles.css) |
-| RAG | Retrieval and grounded answer support | [src/rag/](src/rag) |
+| Service Layer | HTTP API and UI delivery | [src/api/server.py](src/api/server.py), [src/web/index.html](src/web/index.html), [src/web/app.js](src/web/app.js), [src/web/styles.css](src/web/styles.css) |
+| Orchestration Layer | Job-aware execution and persistence | [src/core/pipeline_runner.py](src/core/pipeline_runner.py), [src/core/job_manager.py](src/core/job_manager.py), [src/core/checkpoint_manager.py](src/core/checkpoint_manager.py) |
+| Ingestion Layer | Canonical normalization for non-PDF inputs | [src/core/document_ingestion.py](src/core/document_ingestion.py) |
+| OCR Layer | PDF analysis, rendering, preprocessing, layout, extraction | [src/pipeline/](src/pipeline) |
+| Contract Layer | Shared dataclasses and enums | [src/models/document.py](src/models/document.py) |
+| Safety Layer | File screening and prompt sanitization | [src/security/safety.py](src/security/safety.py) |
+| Retrieval Layer | Chunking, embeddings, vector search, reranking | [src/rag/](src/rag) |
 
-## Visual Pipeline
+## Processing Paths
 
-```mermaid
-sequenceDiagram
-  participant U as User/UI/API
-  participant S as Safety Layer
-  participant J as Job Manager
-  participant R as Pipeline Runner
-  participant P as OCR / Ingestion Stages
-  participant V as Validator
-  participant O as Output Store
+### PDF Path
 
-  U->>S: Upload file or raw text
-  S->>J: Create job
-  J->>R: Hand off job + input path
-  R->>P: Run PDF or structured path
-  P->>V: Assemble markdown
-  V->>O: Persist document.md + metadata.json
-  O-->>U: Result available per job
-```
+The PDF path performs:
 
-## UI
+1. PDF analysis and metadata extraction.
+2. Page rendering.
+3. Image preprocessing.
+4. Layout detection.
+5. Vision extraction.
+6. Markdown assembly.
+7. Validation.
+8. Per-job persistence.
 
-The repository now ships with a Bootstrap control plane served from the API.
+### Structured Path
 
-It includes:
-- file upload for supported document types,
-- a legacy text panel for raw text and database strings,
-- live job polling,
-- per-job result preview,
-- and download support.
+The structured path handles non-PDF inputs by converting them into a canonical single-document representation before assembly and validation.
 
-## Add-Ons And Integrations
+That path is used for:
 
-These components are already part of the repo or ready to be extended:
+- office documents,
+- spreadsheets,
+- tabular sources,
+- database exports,
+- raw SQL or legacy text,
+- and other non-PDF content that can be normalized safely.
 
-- Ollama for local vision model inference.
-- Qdrant for vector storage in the RAG layer.
-- Sentence Transformers for embeddings and reranking.
-- FastAPI for service exposure.
-- Bootstrap 5 for the UI layer.
-- Editable package install through `pyproject.toml`.
-- Pytest for regression coverage.
+## Governance And Storage
 
-Suggested future add-ons:
-- OCR adapter plugins for DOCX table extraction improvements.
-- Spreadsheet-specific sheet and cell lineage tracking.
-- Knowledgebase persistence with sensitivity tags.
-- Queue-based background workers for heavier throughput.
-- Document registry and provenance browser.
+The repository treats storage as part of the architecture, not an afterthought.
 
-## Repository Layout
+Rules:
+- keep secrets and environment files out of Git,
+- keep generated outputs out of Git,
+- keep checkpoints and temporary artifacts out of Git,
+- isolate job outputs under `data/output/<job_id>/`,
+- preserve metadata and provenance alongside the markdown result.
+
+## Add-Ons And Integration Surface
+
+Already present in the system:
+
+- **FastAPI** for service exposure.
+- **Bootstrap 5** for the operator console.
+- **Ollama** for local model execution.
+- **Qdrant** for vector-backed retrieval.
+- **Sentence Transformers** for embeddings and reranking.
+- **Pytest** for regression coverage.
+- **Editable packaging** through [pyproject.toml](pyproject.toml).
+
+Natural extension points:
+
+- richer DOCX table semantics,
+- spreadsheet lineage and sheet provenance,
+- knowledgebase persistence with sensitivity tags,
+- queued background workers for throughput,
+- provenance and document lineage browser,
+- plugin-style adapters for new file families.
+
+## Repository Map
 
 ```text
 src/
@@ -157,9 +163,18 @@ src/
   workers/         background worker
 
 tests/
+docs/
 ```
 
-## Quick Start
+## Validation Posture
+
+Current checks that pass in this repository:
+
+- `python -m pytest -q`
+- FastAPI app import from the repository root after editable installation
+- UI and API using the same job-scoped output contract
+
+## Operational Start Points
 
 ### Install
 
@@ -167,59 +182,32 @@ tests/
 pip install -e .
 ```
 
-### Run Tests
-
-```bash
-python -m pytest -q
-```
-
-### Start The API
+### Run The API
 
 ```bash
 uvicorn api.server:app --reload
 ```
 
-### Use The CLI
+### Run The CLI
 
 ```bash
 python src/main.py path/to/document.pdf
 ```
 
-## Configuration Notes
+## Forward Architecture
 
-- The system is intended for local execution.
-- Keep secrets, keys, and environment files out of Git.
-- Output is written per job under `data/output/<job_id>/`.
-- Temporary data, logs, checkpoints, and generated artifacts are ignored by Git.
-- The current processing model is `qwen3-vl:4b` through Ollama.
+The next system-level expansions should be:
 
-## Validation And Quality
-
-Current repository checks:
-- `pytest` passes.
-- The FastAPI app imports successfully from the repository root after editable installation.
-- The UI and API share the same job-aware output path.
-
-## Roadmap
-
-The next architecture steps should be:
-1. formal knowledgebase schema and persistence,
+1. a governed knowledgebase schema,
 2. richer adapters for office and tabular sources,
-3. retrieval over structured outputs,
-4. background queueing for long-running jobs,
-5. governance policies for sensitivity and retention,
-6. visual provenance and document lineage browser.
+3. retrieval over normalized outputs,
+4. background queueing,
+5. sensitivity and retention policy enforcement,
+6. provenance browsing and lineage visualization.
 
-## Why This Structure Works
-
-This repo is set up so a low-end machine can still process large, mixed document sets safely:
-- each result is stored,
-- each job is isolated,
-- and the system can preserve provenance and output state without collapsing into a single monolithic run.
-
-## Related Docs
+## Related References
 
 - [System architecture roadmap](docs/system_architecture.md)
-- [Bootstrap UI](src/web/index.html)
 - [API server](src/api/server.py)
 - [Pipeline runner](src/core/pipeline_runner.py)
+- [Bootstrap UI](src/web/index.html)
