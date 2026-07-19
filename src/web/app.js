@@ -3,6 +3,7 @@ const backendName = document.getElementById("backendName");
 const jobIdValue = document.getElementById("jobIdValue");
 const jobStatusValue = document.getElementById("jobStatusValue");
 const progressBar = document.getElementById("progressBar");
+const progressPercent = document.getElementById("progressPercent");
 const statusMessage = document.getElementById("statusMessage");
 const resultPreview = document.getElementById("resultPreview");
 const refreshResultBtn = document.getElementById("refreshResultBtn");
@@ -32,6 +33,9 @@ function setProgress(value) {
   const clamped = Math.max(0, Math.min(100, value || 0));
   progressBar.style.width = `${clamped}%`;
   progressBar.textContent = `${Math.round(clamped)}%`;
+  if (progressPercent) {
+    progressPercent.textContent = `${Math.round(clamped)}%`;
+  }
 }
 
 function setResult(text) {
