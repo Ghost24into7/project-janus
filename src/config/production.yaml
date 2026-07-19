@@ -1,0 +1,140 @@
+# =====================================================
+# OCR Intelligence Engine
+# Production Configuration
+# =====================================================
+
+
+app:
+
+  name: "OCR Intelligence Engine"
+
+  environment: "production"
+
+
+
+# -----------------------------------------------------
+# AI Model Configuration
+# -----------------------------------------------------
+
+model:
+
+  provider: "ollama"
+
+  name: "qwen3-vl:4b"
+
+  keep_alive: "30m"
+
+  temperature: 0.1
+
+  timeout_seconds: 120
+
+
+
+# -----------------------------------------------------
+# Document Processing
+# -----------------------------------------------------
+
+processing:
+
+  supported_formats:
+
+    - pdf
+
+
+  max_pages: 500
+
+
+  rendering:
+
+    dpi: 200
+
+
+  image:
+
+    max_width: 2048
+
+    compression_quality: 85
+
+
+
+# -----------------------------------------------------
+# Memory Optimization
+# -----------------------------------------------------
+
+memory:
+
+  enable_cleanup: true
+
+
+  minimum_free_ram_gb: 1.5
+
+
+  max_parallel_pages: 1
+
+
+
+# -----------------------------------------------------
+# Extraction Rules
+# -----------------------------------------------------
+
+extraction:
+
+  chunk_size_pages: 1
+
+
+  confidence_threshold: 0.75
+
+
+  retry_attempts: 3
+
+
+
+# -----------------------------------------------------
+# Security
+# -----------------------------------------------------
+
+security:
+
+  max_file_size_mb: 100
+
+
+  allowed_extensions:
+
+    - ".pdf"
+
+
+
+  sanitize_input: true
+
+
+
+# -----------------------------------------------------
+# Storage
+# -----------------------------------------------------
+
+storage:
+
+  input_directory: "data/input"
+
+  output_directory: "data/output"
+
+  checkpoint_directory: "data/checkpoints"
+
+  metrics_directory: "data/metrics"
+
+  job_directory: "data/jobs"
+
+
+
+# -----------------------------------------------------
+# Logging
+# -----------------------------------------------------
+
+logging:
+
+  level: "INFO"
+
+  save_logs: true
+
+
+  log_directory: "logs"

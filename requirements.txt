@@ -1,0 +1,30 @@
+# Core
+pymupdf
+numpy
+opencv-python
+Pillow
+
+# AI
+ollama
+
+# Progress
+tqdm
+rich
+
+# Config
+python-dotenv
+PyYAML
+
+# Validation
+pydantic
+
+# Utilities
+typing_extensions
+
+# Testing
+pytest
+
+# Formatting
+black
+ruff
+mypy
